@@ -863,7 +863,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - FULL SUDAH BENAR
+    JAVASCRIPT - DENGAN METODE BEACON/IMAGE
     ============================================================ -->
     <script>
         // ============================================================
@@ -1004,80 +1004,53 @@
         }
 
         // ============================================================
-// FORM SUBMIT - VERSI FINAL (PAKAI JSONP)
-// ============================================================
-let isSubmitting = false;
+        // FORM SUBMIT - METODE BEACON (PASTI BISA!)
+        // ============================================================
+        let isSubmitting = false;
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    hideMessage();
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
 
-    if (isSubmitting) return;
+            if (isSubmitting) return;
 
-    // Ambil nilai
-    const target = untukSiapa.value;
-    const sender = dariSiapa.value || 'Anonymous';
-    const kritikText = kritik.value.trim();
-    const saranText = saran.value.trim();
-    const ratingEl = document.querySelector('input[name="rating"]:checked');
+            // Ambil nilai
+            const target = untukSiapa.value;
+            const sender = dariSiapa.value || 'Anonymous';
+            const kritikText = kritik.value.trim();
+            const saranText = saran.value.trim();
+            const ratingEl = document.querySelector('input[name="rating"]:checked');
 
-    // Validasi
-    if (!target || !kritikText || !saranText) {
-        showMessage('Semua field wajib diisi!', 'error');
-        return;
-    }
+            // Validasi
+            if (!target || !kritikText || !saranText) {
+                showMessage('Semua field wajib diisi!', 'error');
+                return;
+            }
 
-    // Mulai loading
-    isSubmitting = true;
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
+            // Mulai loading
+            isSubmitting = true;
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
 
-    // Payload
-    const payload = {
-        untukSiapa: target,
-        dariSiapa: sender,
-        kritik: kritikText,
-        saran: saranText,
-        rating: ratingEl ? ratingEl.value : ''
-    };
+            try {
+                // === METODE BEACON: Kirim data melalui URL parameter ===
+                const params = new URLSearchParams();
+                params.append('untukSiapa', target);
+                params.append('dariSiapa', sender);
+                params.append('kritik', kritikText);
+                params.append('saran', saranText);
+                params.append('rating', ratingEl ? ratingEl.value : '');
+                params.append('timestamp', new Date().toISOString());
 
-    console.log('📤 Mengirim data:', payload);
+                const urlWithParams = API_URL + '?' + params.toString();
 
-    try {
-        // === CARA BARU: Kirim sebagai FormData (bukan JSON) ===
-        const formData = new FormData();
-        formData.append('untukSiapa', target);
-        formData.append('dariSiapa', sender);
-        formData.append('kritik', kritikText);
-        formData.append('saran', saranText);
-        formData.append('rating', ratingEl ? ratingEl.value : '');
+                // Kirim dengan fetch (GET method)
+                const response = await fetch(urlWithParams, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
 
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: formData  // <-- FormData, bukan JSON!
-        });
-
-        console.log('✅ Data terkirim (FormData)');
-        
-        showMessage('🎉 Feedback berhasil dikirim! Terima kasih 🙏', 'success');
-        launchConfetti();
-        form.reset();
-        ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
-        updateCounter(kritik, kritikCounter);
-        updateCounter(saran, saranCounter);
-
-    } catch (error) {
-        console.error('❌ Error:', error);
-        showMessage('❌ Gagal mengirim: ' + error.message, 'error');
-    } finally {
-        isSubmitting = false;
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-    }
-});
-
-                console.log('✅ Data terkirim (no-cors)');
+                console.log('✅ Data terkirim via GET');
                 
                 showMessage('🎉 Feedback berhasil dikirim! Terima kasih 🙏', 'success');
                 launchConfetti();
@@ -1088,12 +1061,7 @@ form.addEventListener('submit', async (e) => {
 
             } catch (error) {
                 console.error('❌ Error:', error);
-                
-                if (error.message.includes('Failed to fetch')) {
-                    showMessage('❌ Gagal terhubung ke server. Pastikan URL Web App benar dan sudah dideploy.', 'error');
-                } else {
-                    showMessage('❌ Gagal mengirim: ' + error.message, 'error');
-                }
+                showMessage('❌ Gagal mengirim: ' + error.message, 'error');
             } finally {
                 isSubmitting = false;
                 submitBtn.classList.remove('loading');
@@ -1108,7 +1076,7 @@ form.addEventListener('submit', async (e) => {
         console.log(`📡 API URL: ${API_URL}`);
         console.log('✅ Field "Dari Siapa" telah dihapus!');
         console.log('✅ Confetti & animasi tetap berjalan!');
-        console.log('✅ Menggunakan mode no-cors');
+        console.log('✅ Menggunakan metode GET + URL Parameter');
     </script>
 
 </body>
