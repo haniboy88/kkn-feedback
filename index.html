@@ -1004,54 +1004,78 @@
         }
 
         // ============================================================
-        // FORM SUBMIT - VERSI NO-CORS (BENAR!)
-        // ============================================================
-        let isSubmitting = false;
+// FORM SUBMIT - VERSI FINAL (PAKAI JSONP)
+// ============================================================
+let isSubmitting = false;
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideMessage();
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage();
 
-            if (isSubmitting) return;
+    if (isSubmitting) return;
 
-            // Ambil nilai
-            const target = untukSiapa.value;
-            const sender = dariSiapa.value || 'Anonymous';
-            const kritikText = kritik.value.trim();
-            const saranText = saran.value.trim();
-            const ratingEl = document.querySelector('input[name="rating"]:checked');
+    // Ambil nilai
+    const target = untukSiapa.value;
+    const sender = dariSiapa.value || 'Anonymous';
+    const kritikText = kritik.value.trim();
+    const saranText = saran.value.trim();
+    const ratingEl = document.querySelector('input[name="rating"]:checked');
 
-            // Validasi
-            if (!target || !kritikText || !saranText) {
-                showMessage('Semua field wajib diisi!', 'error');
-                return;
-            }
+    // Validasi
+    if (!target || !kritikText || !saranText) {
+        showMessage('Semua field wajib diisi!', 'error');
+        return;
+    }
 
-            // Mulai loading
-            isSubmitting = true;
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
+    // Mulai loading
+    isSubmitting = true;
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
 
-            // Payload
-            const payload = {
-                untukSiapa: target,
-                dariSiapa: sender,
-                kritik: kritikText,
-                saran: saranText,
-                rating: ratingEl ? ratingEl.value : ''
-            };
+    // Payload
+    const payload = {
+        untukSiapa: target,
+        dariSiapa: sender,
+        kritik: kritikText,
+        saran: saranText,
+        rating: ratingEl ? ratingEl.value : ''
+    };
 
-            console.log('📤 Mengirim data (no-cors):', payload);
+    console.log('📤 Mengirim data:', payload);
 
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
+    try {
+        // === CARA BARU: Kirim sebagai FormData (bukan JSON) ===
+        const formData = new FormData();
+        formData.append('untukSiapa', target);
+        formData.append('dariSiapa', sender);
+        formData.append('kritik', kritikText);
+        formData.append('saran', saranText);
+        formData.append('rating', ratingEl ? ratingEl.value : '');
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: formData  // <-- FormData, bukan JSON!
+        });
+
+        console.log('✅ Data terkirim (FormData)');
+        
+        showMessage('🎉 Feedback berhasil dikirim! Terima kasih 🙏', 'success');
+        launchConfetti();
+        form.reset();
+        ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
+        updateCounter(kritik, kritikCounter);
+        updateCounter(saran, saranCounter);
+
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showMessage('❌ Gagal mengirim: ' + error.message, 'error');
+    } finally {
+        isSubmitting = false;
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    }
+});
 
                 console.log('✅ Data terkirim (no-cors)');
                 
