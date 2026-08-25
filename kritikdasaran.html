@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>360° Feedback - KKN Kampung Pinang</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ============================================================
+                   ROOT VARIABLES - DARK THEME PREMIUM
+                   ============================================================ */
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: #1a1a3e;
+            --bg-card-hover: #22224a;
+            --bg-input: #0d0d22;
+            --border-color: #2a2a5a;
+            --border-hover: #4a4a8a;
+
+            --text-primary: #f0f0ff;
+            --text-secondary: #c0c0e0;
+            --text-muted: #8888aa;
+            --text-inverse: #0a0a1a;
+
+            --accent-primary: #7c6aff;
+            --accent-secondary: #ff6b9d;
+            --accent-success: #00e6b0;
+            --accent-warning: #ffd93d;
+            --accent-info: #4fc3f7;
+
+            --gradient-main: linear-gradient(135deg, #7c6aff 0%, #ff6b9d 100%);
+            --gradient-success: linear-gradient(135deg, #00e6b0 0%, #00b894 100%);
+            --gradient-warning: linear-gradient(135deg, #ffd93d 0%, #f9a825 100%);
+
+            --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.6);
+            --shadow-hover: 0 30px 80px rgba(124, 106, 255, 0.2);
+            --shadow-glow: 0 0 40px rgba(124, 106, 255, 0.15);
+
+            --radius: 24px;
+            --radius-sm: 14px;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: var(--transition);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(124, 106, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 107, 157, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 230, 176, 0.04) 0%, transparent 70%);
+            z-index: 0;
+            animation: bgFloat 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgFloat {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                transform: translate(5%, 5%) rotate(5deg);
+            }
+        }
+
+        /* Grid overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(124, 106, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 106, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+                   CONTAINER
+                   ============================================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 740px;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ============================================================
+                   CARD
+                   ============================================================ */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            padding: 48px 44px;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover), var(--shadow-glow);
+            border-color: rgba(124, 106, 255, 0.3);
+        }
+
+        /* Glowing border animation */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--gradient-main);
+            border-radius: var(--radius);
+            opacity: 0;
+            z-index: -1;
+            transition: var(--transition);
+            background-size: 300% 300%;
+            animation: gradientMove 6s ease infinite;
+        }
+
+        .card:hover::before {
+            opacity: 0.3;
+        }
+
+        @keyframes gradientMove {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Inner glow */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(124, 106, 255, 0.05), transparent 70%);
+            pointer-events: none;
+            border-radius: var(--radius);
+        }
+
+        /* ============================================================
+                   HEADER
+                   ============================================================ */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: var(--gradient-main);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 4px 20px rgba(124, 106, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 20px rgba(124, 106, 255, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 40px rgba(124, 106, 255, 0.5);
+            }
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 900;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        /* ============================================================
+                   THEME TOGGLE
+                   ============================================================ */
+        .theme-toggle {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            z-index: 2;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            transform: rotate(30deg) scale(1.1);
+            box-shadow: 0 0 30px rgba(124, 106, 255, 0.3);
+        }
+
+        /* ============================================================
+                   INFO BOX
+                   ============================================================ */
+        .info-box {
+            background: rgba(124, 106, 255, 0.06);
+            border: 1px solid rgba(124, 106, 255, 0.12);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-box:hover {
+            border-color: rgba(124, 106, 255, 0.3);
+            background: rgba(124, 106, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .info-box .icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .info-box .text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .info-box .text strong {
+            color: var(--text-primary);
+        }
+
+        /* ============================================================
+                   FORM
+                   ============================================================ */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group label .required {
+            color: var(--accent-secondary);
+            font-size: 18px;
+        }
+
+        .form-group label .optional {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        /* ============================================================
+                   SELECT & INPUT & TEXTAREA
+                   ============================================================ */
+        select,
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        select::placeholder,
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        select:hover,
+        input:hover,
+        textarea:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-secondary);
+        }
+
+        select:focus,
+        input:focus,
+        textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(124, 106, 255, 0.1), inset 0 0 0 1px rgba(124, 106, 255, 0.05);
+            background: var(--bg-secondary);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238888aa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            cursor: pointer;
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+                   CHARACTER COUNTER
+                   ============================================================ */
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .char-counter.warning {
+            color: var(--accent-warning);
+        }
+
+        .char-counter.danger {
+            color: var(--accent-secondary);
+        }
+
+        /* ============================================================
+                   RATING
+                   ============================================================ */
+        .rating-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .rating-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            border: 2px solid var(--border-color);
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--text-secondary);
+            user-select: none;
+            flex: 1;
+            justify-content: center;
+            min-width: 52px;
+        }
+
+        .rating-option:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            background: var(--bg-secondary);
+        }
+
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+
+        .rating-option .number {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .rating-option .emoji {
+            font-size: 20px;
+        }
+
+        .rating-option.active {
+            background: var(--gradient-main);
+            color: white;
+            border-color: var(--accent-primary);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 106, 255, 0.35);
+        }
+
+        /* ============================================================
+                   SUBMIT BUTTON
+                   ============================================================ */
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient-main);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(124, 106, 255, 0.25);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.6s;
+        }
+
+        .btn-submit:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(124, 106, 255, 0.4);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-submit .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-submit.loading .spinner {
+            display: block;
+        }
+
+        .btn-submit.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   MESSAGE
+                   ============================================================ */
+        .message {
+            margin-top: 20px;
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            display: none;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            animation: slideUp 0.4s ease-out;
+            border: 1px solid transparent;
+        }
+
+        .message.show {
+            display: flex;
+        }
+
+        .message.success {
+            background: rgba(0, 230, 176, 0.08);
+            color: var(--accent-success);
+            border-color: rgba(0, 230, 176, 0.15);
+        }
+
+        .message.error {
+            background: rgba(255, 107, 157, 0.08);
+            color: var(--accent-secondary);
+            border-color: rgba(255, 107, 157, 0.15);
+        }
+
+        .message .msg-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+                   CONFETTI OVERLAY
+                   ============================================================ */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            opacity: 0;
+            animation: confettiFall 3s ease-in forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(0.5);
+            }
+        }
+
+        /* ============================================================
+                   FOOTER
+                   ============================================================ */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .footer a:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 640px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .rating-container {
+                gap: 8px;
+            }
+
+            .rating-option {
+                padding: 8px 12px;
+                font-size: 13px;
+                min-width: 44px;
+            }
+
+            .theme-toggle {
+                top: 14px;
+                right: 14px;
+                width: 38px;
+                height: 38px;
+                font-size: 17px;
+            }
+
+            .btn-submit {
+                padding: 15px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .card {
+                padding: 22px 14px;
+                border-radius: 18px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            select,
+            input,
+            textarea {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+        }
+
+        /* ============================================================
+                   SCROLLBAR STYLING
+                   ============================================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* ============================================================
+                   SELECTION
+                   ============================================================ */
+        ::selection {
+            background: var(--accent-primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card" id="card">
+
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                ☀️
+            </button>
+
+            <!-- Header -->
+            <div class="header">
+                <div class="header-badge">✨ KKN Kampung Pinang ✨</div>
+                <h1>Kritik &amp; Saran</h1>
+                <p>Berikan masukan membangun untuk rekan KKN Anda</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <span class="icon">📌</span>
+                <div class="text">
+                    <strong>Aturan:</strong> Setiap orang memberikan <strong>1 kali</strong> kritik &amp; saran
+                    untuk satu orang target. Semua data tersimpan aman di Google Spreadsheet.
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="feedbackForm" novalidate>
+                <!-- Target -->
+                <div class="form-group">
+                    <label>
+                        <span>🎯 Kritik &amp; Saran untuk siapa?</span>
+                        <span class="required">*</span>
+                    </label>
+                    <select id="untukSiapa" required>
+                        <option value="">— Pilih Target —</option>
+                        <option value="Fahri">👤 Fahri</option>
+                        <option value="Vihan">👤 Vihan</option>
+                        <option value="Fikri">👤 Fikri</option>
+                        <option value="Rangga">👤 Rangga</option>
+                        <option value="Niut">👤 Niut</option>
+                        <option value="Sujiani">👤 Sujiani</option>
+                        <option value="Aliya">👤 Aliya</option>
+                        <option value="Nanad">👤 Nanad</option>
+                        <option value="Dinda">👤 Dinda</option>
+                        <option value="Atun">👤 Atun</option>
+                    </select>
+                </div>
+
+                <!-- HIDDEN INPUT - Dari siapa (otomatis Anonymous) -->
+                <input type="hidden" id="dariSiapa" value="Anonymous" />
+
+                <!-- Kritik -->
+                <div class="form-group">
+                    <label>
+                        <span>💬 Kritik</span>
+                        <span class="required">*</span>
+                    </label>
+                    <textarea id="kritik" placeholder="Tulis kritik yang membangun..." maxlength="500" required></textarea>
+                    <div class="char-counter" id="kritikCounter">0 / 500</div>
+                </div>
+
+                <!-- Saran -->
+                <div class="form-group">
+                    <label>
+                        <span>💡 Saran</span>
+                        <span class="required">*</span>
+                    </label>
+                    <textarea id="saran" placeholder="Tulis saran untuk perbaikan..." maxlength="500" required></textarea>
+                    <div class="char-counter" id="saranCounter">0 / 500</div>
+                </div>
+
+                <!-- Rating -->
+                <div class="form-group">
+                    <label>
+                        <span>⭐ Rating</span>
+                        <span class="optional">(opsional)</span>
+                    </label>
+                    <div class="rating-container" id="ratingContainer">
+                        <label class="rating-option" data-value="1">
+                            <input type="radio" name="rating" value="1" />
+                            <span class="emoji">😡</span>
+                            <span class="number">1</span>
+                        </label>
+                        <label class="rating-option" data-value="2">
+                            <input type="radio" name="rating" value="2" />
+                            <span class="emoji">😕</span>
+                            <span class="number">2</span>
+                        </label>
+                        <label class="rating-option" data-value="3">
+                            <input type="radio" name="rating" value="3" />
+                            <span class="emoji">😐</span>
+                            <span class="number">3</span>
+                        </label>
+                        <label class="rating-option" data-value="4">
+                            <input type="radio" name="rating" value="4" />
+                            <span class="emoji">😊</span>
+                            <span class="number">4</span>
+                        </label>
+                        <label class="rating-option" data-value="5">
+                            <input type="radio" name="rating" value="5" />
+                            <span class="emoji">🤩</span>
+                            <span class="number">5</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">🚀 Kirim Feedback</span>
+                </button>
+            </form>
+
+            <!-- Message -->
+            <div id="message" class="message">
+                <span class="msg-icon"></span>
+                <span class="msg-text"></span>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">Made Haniboy · Data tersimpan di Google Sheets</div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT - FULL SUDAH BENAR
+    ============================================================ -->
+    <script>
+        // ============================================================
+        // KONFIGURASI - GANTI DENGAN URL WEB APP ANDA!
+        // ============================================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyTAo_2RMHZwYnaLFJu7ttuhifCBh-NTkkPL5fbAbnwLcnqGRK8n4Wi2jJAZz_4Iw/exec';
+
+        // ============================================================
+        // DOM REFERENCES
+        // ============================================================
+        const form = document.getElementById('feedbackForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageDiv = document.getElementById('message');
+        const msgIcon = messageDiv.querySelector('.msg-icon');
+        const msgText = messageDiv.querySelector('.msg-text');
+        const themeToggle = document.getElementById('themeToggle');
+
+        const untukSiapa = document.getElementById('untukSiapa');
+        const dariSiapa = document.getElementById('dariSiapa');
+        const kritik = document.getElementById('kritik');
+        const saran = document.getElementById('saran');
+        const kritikCounter = document.getElementById('kritikCounter');
+        const saranCounter = document.getElementById('saranCounter');
+        const ratingContainer = document.getElementById('ratingContainer');
+
+        // ============================================================
+        // THEME TOGGLE (Dark = default)
+        // ============================================================
+        let darkMode = localStorage.getItem('theme') !== 'light';
+
+        function setTheme(dark) {
+            if (dark) {
+                document.documentElement.style.setProperty('--bg-primary', '#0a0a1a');
+                document.documentElement.style.setProperty('--bg-secondary', '#12122a');
+                document.documentElement.style.setProperty('--bg-card', '#1a1a3e');
+                document.documentElement.style.setProperty('--bg-card-hover', '#22224a');
+                document.documentElement.style.setProperty('--bg-input', '#0d0d22');
+                document.documentElement.style.setProperty('--border-color', '#2a2a5a');
+                document.documentElement.style.setProperty('--border-hover', '#4a4a8a');
+                document.documentElement.style.setProperty('--text-primary', '#f0f0ff');
+                document.documentElement.style.setProperty('--text-secondary', '#c0c0e0');
+                document.documentElement.style.setProperty('--text-muted', '#8888aa');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.style.setProperty('--bg-primary', '#f0f2f8');
+                document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--bg-card-hover', '#f8f9fe');
+                document.documentElement.style.setProperty('--bg-input', '#f0f2f8');
+                document.documentElement.style.setProperty('--border-color', '#e0e2ed');
+                document.documentElement.style.setProperty('--border-hover', '#b0b2cd');
+                document.documentElement.style.setProperty('--text-primary', '#1a1a2e');
+                document.documentElement.style.setProperty('--text-secondary', '#4a4a6a');
+                document.documentElement.style.setProperty('--text-muted', '#8a8aaa');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+            darkMode = dark;
+        }
+
+        setTheme(darkMode);
+
+        themeToggle.addEventListener('click', () => {
+            setTheme(!darkMode);
+        });
+
+        // ============================================================
+        // CHARACTER COUNTERS
+        // ============================================================
+        function updateCounter(textarea, counterEl, max = 500) {
+            const len = textarea.value.length;
+            counterEl.textContent = `${len} / ${max}`;
+            counterEl.className = 'char-counter';
+            if (len > max * 0.8) counterEl.classList.add('warning');
+            if (len > max * 0.95) counterEl.classList.add('danger');
+        }
+
+        kritik.addEventListener('input', () => updateCounter(kritik, kritikCounter));
+        saran.addEventListener('input', () => updateCounter(saran, saranCounter));
+
+        // ============================================================
+        // RATING INTERACTION
+        // ============================================================
+        ratingContainer.querySelectorAll('.rating-option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // ============================================================
+        // SHOW MESSAGE HELPER
+        // ============================================================
+        function showMessage(text, type = 'success') {
+            msgText.textContent = text;
+            msgIcon.textContent = type === 'success' ? '✅' : '❌';
+            messageDiv.className = `message show ${type}`;
+            messageDiv.style.display = 'flex';
+        }
+
+        function hideMessage() {
+            messageDiv.className = 'message';
+            messageDiv.style.display = 'none';
+        }
+
+        // ============================================================
+        // CONFETTI 🎊
+        // ============================================================
+        function launchConfetti() {
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+
+            const colors = ['#7c6aff', '#ff6b9d', '#00e6b0', '#ffd93d', '#ff6b6b', '#4fc3f7', '#ff8a65'];
+            const shapes = ['■', '●', '▲', '★', '♦', '♥'];
+
+            for (let i = 0; i < 100; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+                el.style.left = Math.random() * 100 + '%';
+                el.style.color = colors[Math.floor(Math.random() * colors.length)];
+                el.style.fontSize = (Math.random() * 18 + 10) + 'px';
+                el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                el.style.animationDelay = (Math.random() * 1.5) + 's';
+                el.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(el);
+            }
+
+            setTimeout(() => {
+                container.remove();
+            }, 5000);
+        }
+
+        // ============================================================
+        // FORM SUBMIT - VERSI NO-CORS (BENAR!)
+        // ============================================================
+        let isSubmitting = false;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+
+            if (isSubmitting) return;
+
+            // Ambil nilai
+            const target = untukSiapa.value;
+            const sender = dariSiapa.value || 'Anonymous';
+            const kritikText = kritik.value.trim();
+            const saranText = saran.value.trim();
+            const ratingEl = document.querySelector('input[name="rating"]:checked');
+
+            // Validasi
+            if (!target || !kritikText || !saranText) {
+                showMessage('Semua field wajib diisi!', 'error');
+                return;
+            }
+
+            // Mulai loading
+            isSubmitting = true;
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            // Payload
+            const payload = {
+                untukSiapa: target,
+                dariSiapa: sender,
+                kritik: kritikText,
+                saran: saranText,
+                rating: ratingEl ? ratingEl.value : ''
+            };
+
+            console.log('📤 Mengirim data (no-cors):', payload);
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('✅ Data terkirim (no-cors)');
+                
+                showMessage('🎉 Feedback berhasil dikirim! Terima kasih 🙏', 'success');
+                launchConfetti();
+                form.reset();
+                ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
+                updateCounter(kritik, kritikCounter);
+                updateCounter(saran, saranCounter);
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                
+                if (error.message.includes('Failed to fetch')) {
+                    showMessage('❌ Gagal terhubung ke server. Pastikan URL Web App benar dan sudah dideploy.', 'error');
+                } else {
+                    showMessage('❌ Gagal mengirim: ' + error.message, 'error');
+                }
+            } finally {
+                isSubmitting = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        console.log('🎯 360° Feedback System loaded!');
+        console.log(`📡 API URL: ${API_URL}`);
+        console.log('✅ Field "Dari Siapa" telah dihapus!');
+        console.log('✅ Confetti & animasi tetap berjalan!');
+        console.log('✅ Menggunakan mode no-cors');
+    </script>
+
+</body>
+</html>
