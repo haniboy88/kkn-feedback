@@ -757,8 +757,8 @@
             <div class="info-box">
                 <span class="icon">📌</span>
                 <div class="text">
-                    <strong>Aturan:</strong> Setiap orang memberikan <strong>1 kali</strong> kritik &amp; saran
-                    untuk satu orang target. Semua data tersimpan aman di Google Spreadsheet.
+                    <strong>Aturan:</strong> Setiap browser memberikan <strong>1 kali</strong> kritik &amp; saran
+                    untuk satu orang target. Sistem menjaga batas ini secara anonim pada browser yang sama.
                 </div>
             </div>
 
@@ -1004,64 +1004,301 @@
         }
 
         // ============================================================
-        // FORM SUBMIT - METODE BEACON (PASTI BISA!)
+        // KONFIGURASI
+        // ============================================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyTAo_2RMHZwYnaLFJu7ttuhifCBh-NTkkPL5fbAbnwLcnqGRK8n4Wi2jJAZz_4Iw/exec';
+        const CLIENT_TOKEN_KEY = 'kkn_feedback_client_token_v1';
+
+        // ============================================================
+        // DOM REFERENCES
+        // ============================================================
+        const form = document.getElementById('feedbackForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageDiv = document.getElementById('message');
+        const msgIcon = messageDiv.querySelector('.msg-icon');
+        const msgText = messageDiv.querySelector('.msg-text');
+        const themeToggle = document.getElementById('themeToggle');
+
+        const untukSiapa = document.getElementById('untukSiapa');
+        const dariSiapa = document.getElementById('dariSiapa');
+        const kritik = document.getElementById('kritik');
+        const saran = document.getElementById('saran');
+        const kritikCounter = document.getElementById('kritikCounter');
+        const saranCounter = document.getElementById('saranCounter');
+        const ratingContainer = document.getElementById('ratingContainer');
+
+        // ============================================================
+        // ANONYMOUS CLIENT TOKEN
+        // Token ini tidak menampilkan identitas pengirim di Spreadsheet.
+        // Fungsinya hanya untuk membatasi 1 feedback per target
+        // pada browser yang sama.
+        // ============================================================
+        function getClientToken() {
+            let token = localStorage.getItem(CLIENT_TOKEN_KEY);
+
+            if (!token) {
+                const bytes = new Uint8Array(24);
+                crypto.getRandomValues(bytes);
+                token = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+                localStorage.setItem(CLIENT_TOKEN_KEY, token);
+            }
+
+            return token;
+        }
+
+        const CLIENT_TOKEN = getClientToken();
+
+        // ============================================================
+        // THEME TOGGLE
+        // ============================================================
+        let darkMode = localStorage.getItem('theme') !== 'light';
+
+        function setTheme(dark) {
+            if (dark) {
+                document.documentElement.style.setProperty('--bg-primary', '#0a0a1a');
+                document.documentElement.style.setProperty('--bg-secondary', '#12122a');
+                document.documentElement.style.setProperty('--bg-card', '#1a1a3e');
+                document.documentElement.style.setProperty('--bg-card-hover', '#22224a');
+                document.documentElement.style.setProperty('--bg-input', '#0d0d22');
+                document.documentElement.style.setProperty('--border-color', '#2a2a5a');
+                document.documentElement.style.setProperty('--border-hover', '#4a4a8a');
+                document.documentElement.style.setProperty('--text-primary', '#f0f0ff');
+                document.documentElement.style.setProperty('--text-secondary', '#c0c0e0');
+                document.documentElement.style.setProperty('--text-muted', '#8888aa');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.style.setProperty('--bg-primary', '#f0f2f8');
+                document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--bg-card-hover', '#f8f9fe');
+                document.documentElement.style.setProperty('--bg-input', '#f0f2f8');
+                document.documentElement.style.setProperty('--border-color', '#e0e2ed');
+                document.documentElement.style.setProperty('--border-hover', '#b0b2cd');
+                document.documentElement.style.setProperty('--text-primary', '#1a1a2e');
+                document.documentElement.style.setProperty('--text-secondary', '#4a4a6a');
+                document.documentElement.style.setProperty('--text-muted', '#8a8aaa');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+            darkMode = dark;
+        }
+
+        setTheme(darkMode);
+
+        themeToggle.addEventListener('click', () => {
+            setTheme(!darkMode);
+        });
+
+        // ============================================================
+        // CHARACTER COUNTERS
+        // ============================================================
+        function updateCounter(textarea, counterEl, max = 500) {
+            const len = textarea.value.length;
+            counterEl.textContent = `${len} / ${max}`;
+            counterEl.className = 'char-counter';
+
+            if (len > max * 0.8) counterEl.classList.add('warning');
+            if (len > max * 0.95) counterEl.classList.add('danger');
+        }
+
+        kritik.addEventListener('input', () => updateCounter(kritik, kritikCounter));
+        saran.addEventListener('input', () => updateCounter(saran, saranCounter));
+
+        // ============================================================
+        // RATING INTERACTION
+        // ============================================================
+        ratingContainer.querySelectorAll('.rating-option').forEach(opt => {
+            opt.addEventListener('click', function () {
+                const radio = this.querySelector('input[type="radio"]');
+
+                if (radio) {
+                    radio.checked = true;
+                    ratingContainer.querySelectorAll('.rating-option')
+                        .forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // ============================================================
+        // MESSAGE HELPER
+        // ============================================================
+        function showMessage(text, type = 'success') {
+            msgText.textContent = text;
+            msgIcon.textContent = type === 'success' ? '✅' : '❌';
+            messageDiv.className = `message show ${type}`;
+            messageDiv.style.display = 'flex';
+        }
+
+        function hideMessage() {
+            messageDiv.className = 'message';
+            messageDiv.style.display = 'none';
+        }
+
+        // ============================================================
+        // CONFETTI
+        // ============================================================
+        function launchConfetti() {
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+
+            const colors = [
+                '#7c6aff', '#ff6b9d', '#00e6b0',
+                '#ffd93d', '#ff6b6b', '#4fc3f7', '#ff8a65'
+            ];
+            const shapes = ['■', '●', '▲', '★', '♦', '♥'];
+
+            for (let i = 0; i < 100; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+                el.style.left = Math.random() * 100 + '%';
+                el.style.color = colors[Math.floor(Math.random() * colors.length)];
+                el.style.fontSize = (Math.random() * 18 + 10) + 'px';
+                el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                el.style.animationDelay = (Math.random() * 1.5) + 's';
+                el.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(el);
+            }
+
+            setTimeout(() => container.remove(), 5000);
+        }
+
+        // ============================================================
+        // JSONP REQUEST
+        // Dipakai karena GitHub Pages dan Apps Script berbeda origin.
+        // Berbeda dengan no-cors, metode ini dapat membaca respons
+        // sukses/gagal dari Apps Script.
+        // ============================================================
+        function requestApi(params, timeoutMs = 15000) {
+            return new Promise((resolve, reject) => {
+                const callbackName =
+                    '__feedback_cb_' +
+                    Date.now() +
+                    '_' +
+                    Math.random().toString(36).slice(2);
+
+                let finished = false;
+
+                const script = document.createElement('script');
+                const query = new URLSearchParams({
+                    ...params,
+                    callback: callbackName
+                });
+
+                const cleanup = () => {
+                    clearTimeout(timeoutId);
+                    delete window[callbackName];
+                    script.remove();
+                };
+
+                const finish = (fn, value) => {
+                    if (finished) return;
+                    finished = true;
+                    cleanup();
+                    fn(value);
+                };
+
+                window[callbackName] = data => {
+                    if (data && data.success) {
+                        finish(resolve, data);
+                    } else {
+                        finish(reject, new Error(
+                            data?.message || 'Server menolak permintaan.'
+                        ));
+                    }
+                };
+
+                script.onerror = () => {
+                    finish(reject, new Error(
+                        'Server tidak dapat dihubungi. Periksa URL Apps Script dan deployment.'
+                    ));
+                };
+
+                const timeoutId = setTimeout(() => {
+                    finish(reject, new Error(
+                        'Waktu tunggu habis. Data belum dapat dikonfirmasi oleh server.'
+                    ));
+                }, timeoutMs);
+
+                script.src = API_URL + '?' + query.toString();
+                script.async = true;
+                document.head.appendChild(script);
+            });
+        }
+
+        // ============================================================
+        // FORM SUBMIT
         // ============================================================
         let isSubmitting = false;
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', async e => {
             e.preventDefault();
             hideMessage();
 
             if (isSubmitting) return;
 
-            // Ambil nilai
-            const target = untukSiapa.value;
-            const sender = dariSiapa.value || 'Anonymous';
+            const target = untukSiapa.value.trim();
+            const sender = dariSiapa.value.trim() || 'Anonymous';
             const kritikText = kritik.value.trim();
             const saranText = saran.value.trim();
             const ratingEl = document.querySelector('input[name="rating"]:checked');
+            const rating = ratingEl ? ratingEl.value : '';
 
-            // Validasi
-            if (!target || !kritikText || !saranText) {
-                showMessage('Semua field wajib diisi!', 'error');
+            // Validasi frontend
+            if (!target) {
+                showMessage('Silakan pilih target terlebih dahulu.', 'error');
+                untukSiapa.focus();
                 return;
             }
 
-            // Mulai loading
+            if (!kritikText || !saranText) {
+                showMessage('Kritik dan saran wajib diisi.', 'error');
+                return;
+            }
+
+            if (kritikText.length > 500 || saranText.length > 500) {
+                showMessage('Kritik dan saran maksimal 500 karakter.', 'error');
+                return;
+            }
+
+            if (rating && !['1', '2', '3', '4', '5'].includes(rating)) {
+                showMessage('Rating tidak valid.', 'error');
+                return;
+            }
+
             isSubmitting = true;
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
 
             try {
-                // === METODE BEACON: Kirim data melalui URL parameter ===
-                const params = new URLSearchParams();
-                params.append('untukSiapa', target);
-                params.append('dariSiapa', sender);
-                params.append('kritik', kritikText);
-                params.append('saran', saranText);
-                params.append('rating', ratingEl ? ratingEl.value : '');
-                params.append('timestamp', new Date().toISOString());
-
-                const urlWithParams = API_URL + '?' + params.toString();
-
-                // Kirim dengan fetch (GET method)
-                const response = await fetch(urlWithParams, {
-                    method: 'GET',
-                    mode: 'no-cors'
+                const result = await requestApi({
+                    action: 'submit',
+                    untukSiapa: target,
+                    dariSiapa: sender,
+                    kritik: kritikText,
+                    saran: saranText,
+                    rating,
+                    clientToken: CLIENT_TOKEN
                 });
 
-                console.log('✅ Data terkirim via GET');
-                
-                showMessage('🎉 Feedback berhasil dikirim! Terima kasih 🙏', 'success');
+                showMessage(result.message || 'Feedback berhasil dikirim! Terima kasih 🙏', 'success');
                 launchConfetti();
+
                 form.reset();
-                ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
+
+                ratingContainer
+                    .querySelectorAll('.rating-option')
+                    .forEach(o => o.classList.remove('active'));
+
                 updateCounter(kritik, kritikCounter);
                 updateCounter(saran, saranCounter);
 
             } catch (error) {
-                console.error('❌ Error:', error);
-                showMessage('❌ Gagal mengirim: ' + error.message, 'error');
+                console.error('Feedback error:', error);
+                showMessage(error.message || 'Gagal mengirim feedback.', 'error');
             } finally {
                 isSubmitting = false;
                 submitBtn.classList.remove('loading');
@@ -1072,11 +1309,12 @@
         // ============================================================
         // INIT
         // ============================================================
+        updateCounter(kritik, kritikCounter);
+        updateCounter(saran, saranCounter);
+
         console.log('🎯 360° Feedback System loaded!');
-        console.log(`📡 API URL: ${API_URL}`);
-        console.log('✅ Field "Dari Siapa" telah dihapus!');
-        console.log('✅ Confetti & animasi tetap berjalan!');
-        console.log('✅ Menggunakan metode GET + URL Parameter');
+        console.log('📡 API URL:', API_URL);
+        console.log('🔒 Anonymous browser token aktif.');
     </script>
 
 </body>
