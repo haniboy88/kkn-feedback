@@ -736,6 +736,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -758,7 +759,7 @@
                 <span class="icon">📌</span>
                 <div class="text">
                     <strong>Aturan:</strong> Setiap browser memberikan <strong>1 kali</strong> kritik &amp; saran
-                    untuk satu orang target. Semua data tersimpan di Google Spreadsheet.
+                    untuk satu orang target. Sistem menjaga batas ini secara anonim pada browser yang sama.
                 </div>
             </div>
 
@@ -865,204 +866,372 @@
     <!-- ============================================================
     JAVASCRIPT - DENGAN METODE BEACON/IMAGE
     ============================================================ -->
-    <script>
-        // ============================================================
-        // KKN 360° FEEDBACK - FRONTEND
-        // HANYA SATU deklarasi API_URL
-        // ============================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyTAo_2RMHZwYnaLFJu7ttuhifCBh-NTkkPL5fbAbnwLcnqGRK8n4Wi2jJAZz_4Iw/exec';
-        const CLIENT_TOKEN_KEY = 'kkn_feedback_client_token_v3';
 
-        const form = document.getElementById('feedbackForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const messageDiv = document.getElementById('message');
-        const msgIcon = messageDiv.querySelector('.msg-icon');
-        const msgText = messageDiv.querySelector('.msg-text');
-        const themeToggle = document.getElementById('themeToggle');
-        const untukSiapa = document.getElementById('untukSiapa');
-        const dariSiapa = document.getElementById('dariSiapa');
-        const kritik = document.getElementById('kritik');
-        const saran = document.getElementById('saran');
-        const kritikCounter = document.getElementById('kritikCounter');
-        const saranCounter = document.getElementById('saranCounter');
-        const ratingContainer = document.getElementById('ratingContainer');
+<script>
+    // ============================================================
+    // KONFIGURASI — HANYA SATU API_URL
+    // ============================================================
+    // Gunakan URL Web App Apps Script yang dipakai deployment kamu.
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyn6sSz5-DY_vNK19AcEJgDmfvhA5nN7oem1fsU6BQAqz7XqgmKjMKqm7eG9fp82TUJ/exec';
+    const CLIENT_TOKEN_KEY = 'kkn_feedback_browser_token_v3';
+    const MESSAGE_SOURCE = 'KKN_360_FEEDBACK';
+    const REQUEST_TIMEOUT_MS = 20000;
 
-        function getClientToken() {
-            try {
-                let token = localStorage.getItem(CLIENT_TOKEN_KEY);
-                if (!token) {
-                    const bytes = new Uint8Array(24);
-                    crypto.getRandomValues(bytes);
-                    token = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
-                    localStorage.setItem(CLIENT_TOKEN_KEY, token);
-                }
-                return token;
-            } catch (e) {
-                return 'browser-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    // ============================================================
+    // DOM REFERENCES
+    // ============================================================
+    const form = document.getElementById('feedbackForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const messageDiv = document.getElementById('message');
+    const msgIcon = messageDiv.querySelector('.msg-icon');
+    const msgText = messageDiv.querySelector('.msg-text');
+    const themeToggle = document.getElementById('themeToggle');
+
+    const untukSiapa = document.getElementById('untukSiapa');
+    const dariSiapa = document.getElementById('dariSiapa');
+    const kritik = document.getElementById('kritik');
+    const saran = document.getElementById('saran');
+    const kritikCounter = document.getElementById('kritikCounter');
+    const saranCounter = document.getElementById('saranCounter');
+    const ratingContainer = document.getElementById('ratingContainer');
+
+    // ============================================================
+    // ANONYMOUS BROWSER TOKEN
+    // ============================================================
+    function getClientToken() {
+        try {
+            let token = localStorage.getItem(CLIENT_TOKEN_KEY);
+
+            if (!token) {
+                const bytes = new Uint8Array(24);
+                crypto.getRandomValues(bytes);
+                token = Array.from(
+                    bytes,
+                    byte => byte.toString(16).padStart(2, '0')
+                ).join('');
+                localStorage.setItem(CLIENT_TOKEN_KEY, token);
             }
-        }
-        const CLIENT_TOKEN = getClientToken();
 
-        // THEME
-        let darkMode = localStorage.getItem('theme') !== 'light';
-        function setTheme(dark) {
-            const vars = dark ? {
-                '--bg-primary':'#0a0a1a','--bg-secondary':'#12122a','--bg-card':'#1a1a3e','--bg-card-hover':'#22224a','--bg-input':'#0d0d22','--border-color':'#2a2a5a','--border-hover':'#4a4a8a','--text-primary':'#f0f0ff','--text-secondary':'#c0c0e0','--text-muted':'#8888aa'
-            } : {
-                '--bg-primary':'#f0f2f8','--bg-secondary':'#ffffff','--bg-card':'#ffffff','--bg-card-hover':'#f8f9fe','--bg-input':'#f0f2f8','--border-color':'#e0e2ed','--border-hover':'#b0b2cd','--text-primary':'#1a1a2e','--text-secondary':'#4a4a6a','--text-muted':'#8a8aaa'
+            return token;
+        } catch (error) {
+            return 'fallback-' + Date.now().toString(36) + '-' +
+                Math.random().toString(36).slice(2);
+        }
+    }
+
+    const CLIENT_TOKEN = getClientToken();
+
+    // ============================================================
+    // THEME
+    // ============================================================
+    let darkMode = localStorage.getItem('theme') !== 'light';
+
+    function setTheme(dark) {
+        if (dark) {
+            document.documentElement.style.setProperty('--bg-primary', '#0a0a1a');
+            document.documentElement.style.setProperty('--bg-secondary', '#12122a');
+            document.documentElement.style.setProperty('--bg-card', '#1a1a3e');
+            document.documentElement.style.setProperty('--bg-card-hover', '#22224a');
+            document.documentElement.style.setProperty('--bg-input', '#0d0d22');
+            document.documentElement.style.setProperty('--border-color', '#2a2a5a');
+            document.documentElement.style.setProperty('--border-hover', '#4a4a8a');
+            document.documentElement.style.setProperty('--text-primary', '#f0f0ff');
+            document.documentElement.style.setProperty('--text-secondary', '#c0c0e0');
+            document.documentElement.style.setProperty('--text-muted', '#8888aa');
+            themeToggle.textContent = '☀️';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.style.setProperty('--bg-primary', '#f0f2f8');
+            document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
+            document.documentElement.style.setProperty('--bg-card', '#ffffff');
+            document.documentElement.style.setProperty('--bg-card-hover', '#f8f9fe');
+            document.documentElement.style.setProperty('--bg-input', '#f0f2f8');
+            document.documentElement.style.setProperty('--border-color', '#e0e2ed');
+            document.documentElement.style.setProperty('--border-hover', '#b0b2cd');
+            document.documentElement.style.setProperty('--text-primary', '#1a1a2e');
+            document.documentElement.style.setProperty('--text-secondary', '#4a4a6a');
+            document.documentElement.style.setProperty('--text-muted', '#8a8aaa');
+            themeToggle.textContent = '🌙';
+            localStorage.setItem('theme', 'light');
+        }
+        darkMode = dark;
+    }
+
+    setTheme(darkMode);
+
+    themeToggle.addEventListener('click', () => setTheme(!darkMode));
+
+    // ============================================================
+    // COUNTER
+    // ============================================================
+    function updateCounter(textarea, counterEl, max = 500) {
+        const len = textarea.value.length;
+        counterEl.textContent = `${len} / ${max}`;
+        counterEl.className = 'char-counter';
+
+        if (len > max * 0.8) counterEl.classList.add('warning');
+        if (len > max * 0.95) counterEl.classList.add('danger');
+    }
+
+    kritik.addEventListener('input', () => updateCounter(kritik, kritikCounter));
+    saran.addEventListener('input', () => updateCounter(saran, saranCounter));
+
+    // ============================================================
+    // RATING
+    // ============================================================
+    ratingContainer.querySelectorAll('.rating-option').forEach(option => {
+        option.addEventListener('click', function () {
+            const radio = this.querySelector('input[type="radio"]');
+            if (!radio) return;
+
+            radio.checked = true;
+            ratingContainer.querySelectorAll('.rating-option')
+                .forEach(item => item.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // ============================================================
+    // MESSAGE
+    // ============================================================
+    function showMessage(text, type = 'success') {
+        msgText.textContent = text;
+        msgIcon.textContent = type === 'success' ? '✅' : '❌';
+        messageDiv.className = `message show ${type}`;
+        messageDiv.style.display = 'flex';
+    }
+
+    function hideMessage() {
+        messageDiv.className = 'message';
+        messageDiv.style.display = 'none';
+    }
+
+    // ============================================================
+    // CONFETTI
+    // ============================================================
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+
+        const colors = [
+            '#7c6aff', '#ff6b9d', '#00e6b0',
+            '#ffd93d', '#ff6b6b', '#4fc3f7', '#ff8a65'
+        ];
+        const shapes = ['■', '●', '▲', '★', '♦', '♥'];
+
+        for (let i = 0; i < 100; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti';
+            el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+            el.style.left = Math.random() * 100 + '%';
+            el.style.color = colors[Math.floor(Math.random() * colors.length)];
+            el.style.fontSize = (Math.random() * 18 + 10) + 'px';
+            el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            el.style.animationDelay = (Math.random() * 1.5) + 's';
+            el.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(el);
+        }
+
+        setTimeout(() => container.remove(), 5000);
+    }
+
+    // ============================================================
+    // HIDDEN IFRAME SUBMIT
+    //
+    // Tidak menggunakan fetch/no-cors/JSONP.
+    // Browser melakukan submit GET normal ke Apps Script.
+    // Apps Script mengirim window.parent.postMessage() setelah
+    // appendRow() benar-benar selesai.
+    // ============================================================
+    function submitToAppsScript(data) {
+        return new Promise((resolve, reject) => {
+            const requestId =
+                'req_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+
+            const iframeName = 'kknFeedbackFrame_' + requestId;
+            const iframe = document.createElement('iframe');
+            iframe.name = iframeName;
+            iframe.id = iframeName;
+            iframe.title = 'Pengiriman feedback';
+            iframe.style.display = 'none';
+            iframe.setAttribute('aria-hidden', 'true');
+
+            const submitForm = document.createElement('form');
+            submitForm.method = 'GET';
+            submitForm.action = API_URL;
+            submitForm.target = iframeName;
+            submitForm.style.display = 'none';
+
+            const fields = {
+                action: 'submit',
+                requestId,
+                untukSiapa: data.untukSiapa,
+                dariSiapa: data.dariSiapa,
+                kritik: data.kritik,
+                saran: data.saran,
+                rating: data.rating,
+                clientToken: CLIENT_TOKEN
             };
-            Object.entries(vars).forEach(([k,v]) => document.documentElement.style.setProperty(k,v));
-            themeToggle.textContent = dark ? '☀️' : '🌙';
-            localStorage.setItem('theme', dark ? 'dark' : 'light');
-            darkMode = dark;
-        }
-        setTheme(darkMode);
-        themeToggle.addEventListener('click', () => setTheme(!darkMode));
 
-        // COUNTERS
-        function updateCounter(el, counter, max=500) {
-            const len = el.value.length;
-            counter.textContent = `${len} / ${max}`;
-            counter.className = 'char-counter';
-            if (len > max * .8) counter.classList.add('warning');
-            if (len > max * .95) counter.classList.add('danger');
-        }
-        kritik.addEventListener('input', () => updateCounter(kritik, kritikCounter));
-        saran.addEventListener('input', () => updateCounter(saran, saranCounter));
-
-        // RATING
-        ratingContainer.querySelectorAll('.rating-option').forEach(option => {
-            option.addEventListener('click', function() {
-                const radio = this.querySelector('input[type="radio"]');
-                if (!radio) return;
-                radio.checked = true;
-                ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
-                this.classList.add('active');
+            Object.entries(fields).forEach(([name, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value == null ? '' : String(value);
+                submitForm.appendChild(input);
             });
-        });
 
-        // MESSAGE
-        function showMessage(text, type='success') {
-            msgText.textContent = text;
-            msgIcon.textContent = type === 'success' ? '✅' : '❌';
-            messageDiv.className = `message show ${type}`;
-            messageDiv.style.display = 'flex';
-        }
-        function hideMessage() {
-            messageDiv.className = 'message';
-            messageDiv.style.display = 'none';
-        }
+            let done = false;
 
-        // CONFETTI
-        function launchConfetti() {
-            const container = document.createElement('div');
-            container.className = 'confetti-container';
-            document.body.appendChild(container);
-            const colors = ['#7c6aff','#ff6b9d','#00e6b0','#ffd93d','#ff6b6b','#4fc3f7','#ff8a65'];
-            const shapes = ['■','●','▲','★','♦','♥'];
-            for (let i=0; i<100; i++) {
-                const el = document.createElement('div');
-                el.className = 'confetti';
-                el.textContent = shapes[Math.floor(Math.random()*shapes.length)];
-                el.style.left = Math.random()*100 + '%';
-                el.style.color = colors[Math.floor(Math.random()*colors.length)];
-                el.style.fontSize = (Math.random()*18+10)+'px';
-                el.style.animationDuration = (Math.random()*2+2)+'s';
-                el.style.animationDelay = (Math.random()*1.5)+'s';
-                container.appendChild(el);
+            function cleanup() {
+                window.removeEventListener('message', onMessage);
+                clearTimeout(timeoutId);
+                submitForm.remove();
+                iframe.remove();
             }
-            setTimeout(() => container.remove(), 5000);
-        }
 
-        // JSONP: membaca response Apps Script secara nyata.
-        function requestApi(params, timeoutMs=20000) {
-            return new Promise((resolve, reject) => {
-                const callbackName = '__kknFeedback_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-                const script = document.createElement('script');
-                let settled = false;
-                let timeoutId;
+            function finishSuccess(payload) {
+                if (done) return;
+                done = true;
+                cleanup();
+                resolve(payload);
+            }
 
-                function cleanup() {
-                    clearTimeout(timeoutId);
-                    try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
-                    script.remove();
-                }
-                function finish(fn, value) {
-                    if (settled) return;
-                    settled = true;
-                    cleanup();
-                    fn(value);
+            function finishError(error) {
+                if (done) return;
+                done = true;
+                cleanup();
+                reject(error);
+            }
+
+            function onMessage(event) {
+                const dataFromServer = event.data;
+
+                if (!dataFromServer ||
+                    dataFromServer.source !== MESSAGE_SOURCE ||
+                    dataFromServer.requestId !== requestId) {
+                    return;
                 }
 
-                window[callbackName] = data => {
-                    if (data && data.success === true) finish(resolve, data);
-                    else finish(reject, new Error(data?.message || 'Server menolak data.'));
-                };
-                script.onerror = () => finish(reject, new Error('Tidak dapat menghubungi Google Apps Script. Pastikan URL Web App dan deployment benar.'));
-                timeoutId = setTimeout(() => finish(reject, new Error('Server tidak memberikan respons dalam 20 detik.')), timeoutMs);
+                if (dataFromServer.success === true) {
+                    finishSuccess(dataFromServer);
+                } else {
+                    finishError(new Error(
+                        dataFromServer.message ||
+                        'Server menolak pengiriman feedback.'
+                    ));
+                }
+            }
 
-                const query = new URLSearchParams({
-                    action:'submit',
-                    untukSiapa:params.untukSiapa,
-                    dariSiapa:params.dariSiapa || 'Anonymous',
-                    kritik:params.kritik,
-                    saran:params.saran,
-                    rating:params.rating || '',
-                    clientToken:CLIENT_TOKEN,
-                    callback:callbackName
-                });
-                script.src = API_URL + '?' + query.toString();
-                script.async = true;
-                document.head.appendChild(script);
-            });
+            const timeoutId = setTimeout(() => {
+                finishError(new Error(
+                    'Waktu tunggu habis. Server belum mengonfirmasi penyimpanan data.'
+                ));
+            }, REQUEST_TIMEOUT_MS);
+
+            window.addEventListener('message', onMessage);
+
+            document.body.appendChild(iframe);
+            document.body.appendChild(submitForm);
+            submitForm.submit();
+        });
+    }
+
+    // ============================================================
+    // SUBMIT FORM
+    // ============================================================
+    let isSubmitting = false;
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        if (isSubmitting) return;
+
+        hideMessage();
+
+        const target = untukSiapa.value.trim();
+        const sender = dariSiapa.value.trim() || 'Anonymous';
+        const kritikText = kritik.value.trim();
+        const saranText = saran.value.trim();
+        const ratingElement =
+            document.querySelector('input[name="rating"]:checked');
+        const rating = ratingElement ? ratingElement.value : '';
+
+        if (!target) {
+            showMessage('Silakan pilih target terlebih dahulu.', 'error');
+            untukSiapa.focus();
+            return;
         }
 
-        // SUBMIT
-        let isSubmitting = false;
-        form.addEventListener('submit', async event => {
-            event.preventDefault();
-            if (isSubmitting) return;
-            hideMessage();
+        if (!kritikText || !saranText) {
+            showMessage('Kritik dan saran wajib diisi.', 'error');
+            return;
+        }
 
-            const target = untukSiapa.value.trim();
-            const sender = dariSiapa.value.trim() || 'Anonymous';
-            const kritikText = kritik.value.trim();
-            const saranText = saran.value.trim();
-            const ratingEl = document.querySelector('input[name="rating"]:checked');
-            const rating = ratingEl ? ratingEl.value : '';
+        if (kritikText.length > 500 || saranText.length > 500) {
+            showMessage('Kritik dan saran maksimal 500 karakter.', 'error');
+            return;
+        }
 
-            if (!target) return showMessage('Silakan pilih target terlebih dahulu.', 'error');
-            if (!kritikText || !saranText) return showMessage('Kritik dan saran wajib diisi.', 'error');
-            if (kritikText.length > 500 || saranText.length > 500) return showMessage('Kritik dan saran maksimal 500 karakter.', 'error');
-            if (rating && !['1','2','3','4','5'].includes(rating)) return showMessage('Rating tidak valid.', 'error');
+        if (rating && !['1', '2', '3', '4', '5'].includes(rating)) {
+            showMessage('Rating tidak valid.', 'error');
+            return;
+        }
 
-            isSubmitting = true;
-            submitBtn.disabled = true;
-            submitBtn.classList.add('loading');
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
 
-            try {
-                const result = await requestApi({untukSiapa:target,dariSiapa:sender,kritik:kritikText,saran:saranText,rating});
-                showMessage(result.message || 'Feedback berhasil disimpan ke Google Sheets! 🙏', 'success');
-                launchConfetti();
-                form.reset();
-                ratingContainer.querySelectorAll('.rating-option').forEach(o => o.classList.remove('active'));
-                updateCounter(kritik, kritikCounter);
-                updateCounter(saran, saranCounter);
-            } catch (error) {
-                console.error('Feedback error:', error);
-                showMessage(error.message || 'Feedback gagal dikirim.', 'error');
-            } finally {
-                isSubmitting = false;
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('loading');
-            }
-        });
+        try {
+            const result = await submitToAppsScript({
+                untukSiapa: target,
+                dariSiapa: sender,
+                kritik: kritikText,
+                saran: saranText,
+                rating
+            });
 
-        updateCounter(kritik, kritikCounter);
-        updateCounter(saran, saranCounter);
-        console.log('🎯 KKN 360° Feedback aktif');
-        console.log('📡 API:', API_URL);
-    </script>
+            showMessage(
+                result.message ||
+                'Feedback berhasil disimpan ke Google Sheets! 🙏',
+                'success'
+            );
+
+            launchConfetti();
+            form.reset();
+
+            ratingContainer
+                .querySelectorAll('.rating-option')
+                .forEach(item => item.classList.remove('active'));
+
+            updateCounter(kritik, kritikCounter);
+            updateCounter(saran, saranCounter);
+
+        } catch (error) {
+            console.error('Feedback error:', error);
+            showMessage(
+                error.message ||
+                'Feedback gagal dikirim. Silakan coba lagi.',
+                'error'
+            );
+        } finally {
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+        }
+    });
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    updateCounter(kritik, kritikCounter);
+    updateCounter(saran, saranCounter);
+
+    console.log('🎯 KKN 360° Feedback loaded');
+    console.log('📡 API URL:', API_URL);
+    console.log('🔒 Anonymous browser token aktif');
+</script>
 
 </body>
 </html>
