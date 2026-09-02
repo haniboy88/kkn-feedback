@@ -7,39 +7,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
         /* ============================================================
-                   ROOT VARIABLES - DARK THEME PREMIUM
+                   ROOT VARIABLES - GLASSMORPHISM THEME
                    ============================================================ */
         :root {
-            --bg-primary: #0a0a1a;
-            --bg-secondary: #12122a;
-            --bg-card: #1a1a3e;
-            --bg-card-hover: #22224a;
-            --bg-input: #0d0d22;
-            --border-color: #2a2a5a;
-            --border-hover: #4a4a8a;
+            --glass-bg: rgba(255, 255, 255, 0.044);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --glass-blur: blur(20px);
 
-            --text-primary: #f0f0ff;
-            --text-secondary: #c0c0e0;
-            --text-muted: #8888aa;
-            --text-inverse: #0a0a1a;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --text-muted: rgba(255, 255, 255, 0.5);
 
             --accent-primary: #7c6aff;
             --accent-secondary: #ff6b9d;
             --accent-success: #00e6b0;
             --accent-warning: #ffd93d;
-            --accent-info: #4fc3f7;
 
             --gradient-main: linear-gradient(135deg, #7c6aff 0%, #ff6b9d 100%);
             --gradient-success: linear-gradient(135deg, #00e6b0 0%, #00b894 100%);
-            --gradient-warning: linear-gradient(135deg, #ffd93d 0%, #f9a825 100%);
-
-            --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.6);
-            --shadow-hover: 0 30px 80px rgba(124, 106, 255, 0.2);
-            --shadow-glow: 0 0 40px rgba(124, 106, 255, 0.15);
 
             --radius: 24px;
             --radius-sm: 14px;
             --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            /* WARNA INPUT TETAP */
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --input-border-focus: rgba(124, 106, 255, 0.4);
         }
 
         /* ============================================================
@@ -53,55 +48,32 @@
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            transition: var(--transition);
             position: relative;
             overflow-x: hidden;
+
+            /* ======== BACKGROUND FOTO ======== */
+            background-image: url('IMG_7932.JPEG');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #0a0a1a;
         }
 
-        /* Animated background particles */
+        /* Overlay gelap di atas background */
         body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(124, 106, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 107, 157, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(0, 230, 176, 0.04) 0%, transparent 70%);
-            z-index: 0;
-            animation: bgFloat 20s ease-in-out infinite alternate;
-        }
-
-        @keyframes bgFloat {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-            100% {
-                transform: translate(5%, 5%) rotate(5deg);
-            }
-        }
-
-        /* Grid overlay */
-        body::after {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-image:
-                linear-gradient(rgba(124, 106, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(124, 106, 255, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
+            background: rgba(36, 36, 39, 0.388);
             z-index: 0;
             pointer-events: none;
         }
@@ -129,23 +101,24 @@
         }
 
         /* ============================================================
-                   CARD
+                   CARD - GLASSMORPHISM
                    ============================================================ */
         .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
             border-radius: var(--radius);
             padding: 48px 44px;
-            box-shadow: var(--shadow-card), var(--shadow-glow);
-            border: 1px solid var(--border-color);
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
 
         .card:hover {
-            box-shadow: var(--shadow-hover), var(--shadow-glow);
-            border-color: rgba(124, 106, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
         }
 
         /* Glowing border animation */
@@ -162,7 +135,7 @@
             z-index: -1;
             transition: var(--transition);
             background-size: 300% 300%;
-            animation: gradientMove 6s ease infinite;
+            animation: gradientMove 3s ease infinite;
         }
 
         .card:hover::before {
@@ -177,19 +150,6 @@
             50% {
                 background-position: 100% 50%;
             }
-        }
-
-        /* Inner glow */
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(ellipse at 50% 0%, rgba(124, 106, 255, 0.05), transparent 70%);
-            pointer-events: none;
-            border-radius: var(--radius);
         }
 
         /* ============================================================
@@ -254,8 +214,8 @@
             position: absolute;
             top: 18px;
             right: 18px;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             width: 44px;
             height: 44px;
             border-radius: 50%;
@@ -267,6 +227,8 @@
             justify-content: center;
             color: var(--text-secondary);
             z-index: 2;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
         }
 
         .theme-toggle:hover {
@@ -278,11 +240,11 @@
         }
 
         /* ============================================================
-                   INFO BOX
+                   INFO BOX - GLASS
                    ============================================================ */
         .info-box {
-            background: rgba(124, 106, 255, 0.06);
-            border: 1px solid rgba(124, 106, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius-sm);
             padding: 16px 20px;
             margin-bottom: 20px;
@@ -292,11 +254,13 @@
             transition: var(--transition);
             position: relative;
             z-index: 1;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
         }
 
         .info-box:hover {
-            border-color: rgba(124, 106, 255, 0.3);
-            background: rgba(124, 106, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
             transform: translateX(4px);
         }
 
@@ -317,7 +281,7 @@
         }
 
         /* ============================================================
-                   STATS BOX
+                   STATS BOX - GLASS
                    ============================================================ */
         .stats-box {
             background: rgba(0, 230, 176, 0.05);
@@ -329,6 +293,8 @@
             transition: var(--transition);
             position: relative;
             z-index: 1;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
         }
 
         .stats-box.show {
@@ -365,7 +331,7 @@
         }
 
         /* ============================================================
-                   FORM
+                   FORM - GLASS INPUT
                    ============================================================ */
         .form-group {
             margin-bottom: 24px;
@@ -397,21 +363,24 @@
         }
 
         /* ============================================================
-                   SELECT & INPUT & TEXTAREA
+                   GLASS INPUT - TIDAK BERUBAH SAMA SEKALI
                    ============================================================ */
         select,
         input,
         textarea {
             width: 100%;
             padding: 14px 18px;
-            background: var(--bg-input);
-            border: 2px solid var(--border-color);
+            background: var(--input-bg) !important;
+            border: 1px solid var(--input-border);
             border-radius: var(--radius-sm);
             font-size: 15px;
             font-family: 'Inter', sans-serif;
             color: var(--text-primary);
-            transition: var(--transition);
             outline: none;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            transition: none !important;
+            cursor: text;
         }
 
         select::placeholder,
@@ -420,31 +389,33 @@
             color: var(--text-muted);
         }
 
+        /* HOVER - TIDAK BERUBAH */
         select:hover,
         input:hover,
         textarea:hover {
-            border-color: var(--border-hover);
-            background: var(--bg-secondary);
+            background: var(--input-bg) !important;
+            border-color: var(--input-border);
         }
 
+        /* FOCUS - TIDAK BERUBAH (hanya border berubah sedikit) */
         select:focus,
         input:focus,
         textarea:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(124, 106, 255, 0.1), inset 0 0 0 1px rgba(124, 106, 255, 0.05);
-            background: var(--bg-secondary);
+            background: var(--input-bg) !important;
+            border-color: var(--input-border-focus);
+            box-shadow: 0 0 0 3px rgba(124, 106, 255, 0.1);
         }
 
         select {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238888aa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffffff80' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 16px center;
             cursor: pointer;
         }
 
         select option {
-            background: var(--bg-card);
+            background: #1a1a3e;
             color: var(--text-primary);
         }
 
@@ -475,7 +446,7 @@
         }
 
         /* ============================================================
-                   RATING
+                   RATING - TIDAK BERUBAH SAMA SEKALI
                    ============================================================ */
         .rating-container {
             display: flex;
@@ -491,21 +462,24 @@
             cursor: pointer;
             padding: 10px 18px;
             border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            border: 2px solid var(--border-color);
-            transition: var(--transition);
+            background: var(--input-bg) !important;
+            border: 1px solid var(--input-border);
             font-weight: 600;
             color: var(--text-secondary);
             user-select: none;
             flex: 1;
             justify-content: center;
             min-width: 52px;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            transition: none !important;
         }
 
+        /* HOVER - TIDAK BERUBAH */
         .rating-option:hover {
-            border-color: var(--border-hover);
-            transform: translateY(-2px);
-            background: var(--bg-secondary);
+            background: var(--input-bg) !important;
+            border-color: var(--input-border);
+            transform: none !important;
         }
 
         .rating-option input[type="radio"] {
@@ -521,8 +495,9 @@
             font-size: 20px;
         }
 
+        /* AKTIF - SATU-SATUNYA YANG BERUBAH */
         .rating-option.active {
-            background: var(--gradient-main);
+            background: var(--gradient-main) !important;
             color: white;
             border-color: var(--accent-primary);
             transform: scale(1.05) translateY(-2px);
@@ -560,7 +535,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
             transition: 0.6s;
         }
 
@@ -608,7 +583,7 @@
         }
 
         /* ============================================================
-                   MESSAGE
+                   MESSAGE - GLASS
                    ============================================================ */
         .message {
             margin-top: 20px;
@@ -620,6 +595,8 @@
             font-weight: 600;
             animation: slideUp 0.4s ease-out;
             border: 1px solid transparent;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
         }
 
         .message.show {
@@ -627,15 +604,15 @@
         }
 
         .message.success {
-            background: rgba(0, 230, 176, 0.08);
+            background: rgba(0, 230, 176, 0.1);
             color: var(--accent-success);
-            border-color: rgba(0, 230, 176, 0.15);
+            border-color: rgba(0, 230, 176, 0.2);
         }
 
         .message.error {
-            background: rgba(255, 107, 157, 0.08);
+            background: rgba(255, 107, 157, 0.1);
             color: var(--accent-secondary);
-            border-color: rgba(255, 107, 157, 0.15);
+            border-color: rgba(255, 107, 157, 0.2);
         }
 
         .message .msg-icon {
@@ -772,7 +749,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         ::-webkit-scrollbar-thumb {
@@ -939,14 +916,13 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - PERBAIKAN DENGAN FETCH + FALLBACK
+    JAVASCRIPT
     ============================================================ -->
 
     <script>
         // ============================================================
         // KONFIGURASI
         // ============================================================
-        // GANTI DENGAN URL APPS SCRIPT ANDA!
         const API_URL = 'https://script.google.com/macros/s/AKfycbyn6sSz5-DY_vNK19AcEJgDmfvhA5nN7oem1fsU6BQAqz7XqgmKjMKqm7eG9fp82TUJ/exec';
         const CLIENT_TOKEN_KEY = 'kkn_feedback_browser_token_v3';
         const MESSAGE_SOURCE = 'KKN_360_FEEDBACK';
@@ -980,21 +956,15 @@
         function getClientToken() {
             try {
                 let token = localStorage.getItem(CLIENT_TOKEN_KEY);
-
                 if (!token) {
                     const bytes = new Uint8Array(24);
                     crypto.getRandomValues(bytes);
-                    token = Array.from(
-                        bytes,
-                        byte => byte.toString(16).padStart(2, '0')
-                    ).join('');
+                    token = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
                     localStorage.setItem(CLIENT_TOKEN_KEY, token);
                 }
-
                 return token;
             } catch (error) {
-                return 'fallback-' + Date.now().toString(36) + '-' +
-                    Math.random().toString(36).slice(2);
+                return 'fallback-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
             }
         }
 
@@ -1007,29 +977,23 @@
 
         function setTheme(dark) {
             if (dark) {
-                document.documentElement.style.setProperty('--bg-primary', '#0a0a1a');
-                document.documentElement.style.setProperty('--bg-secondary', '#12122a');
-                document.documentElement.style.setProperty('--bg-card', '#1a1a3e');
-                document.documentElement.style.setProperty('--bg-card-hover', '#22224a');
-                document.documentElement.style.setProperty('--bg-input', '#0d0d22');
-                document.documentElement.style.setProperty('--border-color', '#2a2a5a');
-                document.documentElement.style.setProperty('--border-hover', '#4a4a8a');
-                document.documentElement.style.setProperty('--text-primary', '#f0f0ff');
-                document.documentElement.style.setProperty('--text-secondary', '#c0c0e0');
-                document.documentElement.style.setProperty('--text-muted', '#8888aa');
+                document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
+                document.documentElement.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.12)');
+                document.documentElement.style.setProperty('--text-primary', '#ffffff');
+                document.documentElement.style.setProperty('--text-secondary', 'rgba(255, 255, 255, 0.8)');
+                document.documentElement.style.setProperty('--text-muted', 'rgba(255, 255, 255, 0.5)');
+                document.documentElement.style.setProperty('--input-bg', 'rgba(255, 255, 255, 0.06)');
+                document.documentElement.style.setProperty('--input-border', 'rgba(255, 255, 255, 0.1)');
                 themeToggle.textContent = '☀️';
                 localStorage.setItem('theme', 'dark');
             } else {
-                document.documentElement.style.setProperty('--bg-primary', '#f0f2f8');
-                document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
-                document.documentElement.style.setProperty('--bg-card', '#ffffff');
-                document.documentElement.style.setProperty('--bg-card-hover', '#f8f9fe');
-                document.documentElement.style.setProperty('--bg-input', '#f0f2f8');
-                document.documentElement.style.setProperty('--border-color', '#e0e2ed');
-                document.documentElement.style.setProperty('--border-hover', '#b0b2cd');
+                document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.2)');
+                document.documentElement.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.25)');
                 document.documentElement.style.setProperty('--text-primary', '#1a1a2e');
                 document.documentElement.style.setProperty('--text-secondary', '#4a4a6a');
                 document.documentElement.style.setProperty('--text-muted', '#8a8aaa');
+                document.documentElement.style.setProperty('--input-bg', 'rgba(255, 255, 255, 0.3)');
+                document.documentElement.style.setProperty('--input-border', 'rgba(255, 255, 255, 0.4)');
                 themeToggle.textContent = '🌙';
                 localStorage.setItem('theme', 'light');
             }
@@ -1037,7 +1001,6 @@
         }
 
         setTheme(darkMode);
-
         themeToggle.addEventListener('click', () => setTheme(!darkMode));
 
         // ============================================================
@@ -1047,7 +1010,6 @@
             const len = textarea.value.length;
             counterEl.textContent = `${len} / ${max}`;
             counterEl.className = 'char-counter';
-
             if (len > max * 0.8) counterEl.classList.add('warning');
             if (len > max * 0.95) counterEl.classList.add('danger');
         }
@@ -1062,10 +1024,8 @@
             option.addEventListener('click', function() {
                 const radio = this.querySelector('input[type="radio"]');
                 if (!radio) return;
-
                 radio.checked = true;
-                ratingContainer.querySelectorAll('.rating-option')
-                    .forEach(item => item.classList.remove('active'));
+                ratingContainer.querySelectorAll('.rating-option').forEach(item => item.classList.remove('active'));
                 this.classList.add('active');
             });
         });
@@ -1092,13 +1052,8 @@
             const container = document.createElement('div');
             container.className = 'confetti-container';
             document.body.appendChild(container);
-
-            const colors = [
-                '#7c6aff', '#ff6b9d', '#00e6b0',
-                '#ffd93d', '#ff6b6b', '#4fc3f7', '#ff8a65'
-            ];
+            const colors = ['#7c6aff', '#ff6b9d', '#00e6b0', '#ffd93d', '#ff6b6b', '#4fc3f7', '#ff8a65'];
             const shapes = ['■', '●', '▲', '★', '♦', '♥'];
-
             for (let i = 0; i < 100; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti';
@@ -1111,12 +1066,11 @@
                 el.style.transform = `rotate(${Math.random() * 360}deg)`;
                 container.appendChild(el);
             }
-
             setTimeout(() => container.remove(), 5000);
         }
 
         // ============================================================
-        // Cek Duplikat (Client-side)
+        // DUPLICATE CHECK
         // ============================================================
         function checkDuplicate(target) {
             const key = `kkn_feedback_${CLIENT_TOKEN}_${target}`;
@@ -1133,24 +1087,19 @@
         // ============================================================
         function updateStats() {
             try {
-                let total = 0;
-                let myTotal = 0;
-
+                let total = 0,
+                    myTotal = 0;
                 for (let i = 0; i < sessionStorage.length; i++) {
                     const key = sessionStorage.key(i);
                     if (key && key.startsWith('kkn_feedback_')) {
                         total++;
-                        if (key.includes(CLIENT_TOKEN)) {
-                            myTotal++;
-                        }
+                        if (key.includes(CLIENT_TOKEN)) myTotal++;
                     }
                 }
-
                 if (total > 0) {
                     statsBox.classList.add('show');
                     totalFeedbackEl.textContent = total;
                     myFeedbackEl.textContent = myTotal;
-
                     const ratings = JSON.parse(localStorage.getItem('kkn_ratings') || '[]');
                     if (ratings.length > 0) {
                         const sum = ratings.reduce((a, b) => a + b, 0);
@@ -1166,13 +1115,11 @@
         }
 
         // ============================================================
-        // SUBMIT KE APPS SCRIPT - MENGGUNAKAN FETCH + CORS BYPASS
+        // SUBMIT
         // ============================================================
         function submitToAppsScript(data) {
             return new Promise((resolve, reject) => {
                 const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-
-                // Build URL with parameters
                 const params = new URLSearchParams({
                     action: 'submit',
                     requestId: requestId,
@@ -1182,14 +1129,9 @@
                     saran: data.saran,
                     rating: data.rating || '',
                     clientToken: CLIENT_TOKEN,
-                    _: Date.now() // Cache buster
+                    _: Date.now()
                 });
-
                 const fullUrl = API_URL + '?' + params.toString();
-
-                // Method 1: Try fetch with no-cors (bisa gagal karena CORS)
-                // Method 2: Gunakan iframe sebagai fallback
-                // Method 3: Gunakan Image/Beacon
 
                 let isDone = false;
 
@@ -1205,85 +1147,55 @@
                     reject(error);
                 }
 
-                // =============================================
-                // ATTEMPT 1: FETCH (dengan mode no-cors)
-                // =============================================
                 const timeoutId = setTimeout(() => {
-                    // Jika fetch timeout, coba metode iframe
-                    console.warn('Fetch timeout, mencoba metode iframe...');
+                    console.warn('Fetch timeout, mencoba iframe...');
                     tryIframeSubmit();
                 }, 8000);
 
-                // Listener untuk postMessage dari iframe
                 function onMessage(event) {
                     const dataFromServer = event.data;
-
-                    if (!dataFromServer ||
-                        dataFromServer.source !== MESSAGE_SOURCE ||
-                        dataFromServer.requestId !== requestId) {
+                    if (!dataFromServer || dataFromServer.source !== MESSAGE_SOURCE || dataFromServer.requestId !==
+                        requestId) {
                         return;
                     }
-
                     clearTimeout(timeoutId);
                     window.removeEventListener('message', onMessage);
-
                     if (dataFromServer.success === true) {
                         finishSuccess(dataFromServer);
                     } else {
-                        finishError(new Error(
-                            dataFromServer.message ||
-                            'Server menolak pengiriman feedback.'
-                        ));
+                        finishError(new Error(dataFromServer.message || 'Server menolak pengiriman.'));
                     }
                 }
 
                 window.addEventListener('message', onMessage);
 
-                // Coba fetch dulu
                 fetch(fullUrl, {
                         method: 'GET',
                         mode: 'no-cors',
                         cache: 'no-cache',
-                        headers: {
-                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        }
+                        headers: { 'Accept': 'text/html,*/*' }
                     })
-                    .then(() => {
-                        // no-cors return opaque response, kita tunggu postMessage dari iframe
-                        // atau fallback ke iframe
-                        console.log('Fetch request sent (no-cors)');
-                    })
+                    .then(() => console.log('Fetch request sent (no-cors)'))
                     .catch(() => {
-                        // Jika fetch gagal, coba iframe
                         console.warn('Fetch gagal, mencoba iframe...');
                         tryIframeSubmit();
                     });
 
-                // =============================================
-                // ATTEMPT 2: IFRAME (FALLBACK)
-                // =============================================
-                function tryIframeSubmit() {
-                    // Hanya jalankan sekali
-                    if (window._iframeAttempted) return;
-                    window._iframeAttempted = true;
+                let iframeAttempted = false;
 
+                function tryIframeSubmit() {
+                    if (iframeAttempted) return;
+                    iframeAttempted = true;
                     clearTimeout(timeoutId);
 
-                    const iframeName = 'kknFrame_' + requestId;
                     const iframe = document.createElement('iframe');
-                    iframe.name = iframeName;
-                    iframe.id = iframeName;
+                    iframe.id = 'kknFrame_' + requestId;
                     iframe.style.display = 'none';
                     iframe.src = fullUrl;
 
-                    // Jika iframe selesai loading dan tidak ada postMessage,
-                    // kita anggap sukses (karena data sudah terkirim)
                     iframe.onload = function() {
-                        // Tunggu sebentar untuk postMessage
                         setTimeout(() => {
                             if (!isDone) {
-                                // Jika belum ada response, anggap sukses
-                                // karena data sudah terkirim ke server
                                 console.log('Iframe loaded, assuming success...');
                                 finishSuccess({
                                     success: true,
@@ -1296,84 +1208,54 @@
 
                     document.body.appendChild(iframe);
 
-                    // Cleanup after timeout
                     setTimeout(() => {
                         if (!isDone) {
-                            tryIframeCleanup();
+                            const iframeEl = document.getElementById('kknFrame_' + requestId);
+                            if (iframeEl) iframeEl.remove();
+                            window.removeEventListener('message', onMessage);
+                            if (!isDone) {
+                                finishError(new Error('Waktu habis mencoba semua metode.'));
+                            }
                         }
-                    }, REQUEST_TIMEOUT_MS);
+                    }, REQUEST_TIMEOUT_MS + 5000);
                 }
-
-                function tryIframeCleanup() {
-                    const iframe = document.getElementById('kknFrame_' + requestId);
-                    if (iframe) iframe.remove();
-                    window.removeEventListener('message', onMessage);
-
-                    if (!isDone) {
-                        // Coba method terakhir: navigasi langsung (redirect)
-                        console.warn('Semua metode gagal, mencoba redirect...');
-                        window.location.href = fullUrl;
-                        // Tapi ini akan redirect halaman, kita anggap sukses
-                        finishSuccess({
-                            success: true,
-                            message: 'Feedback dikirim (redirect)',
-                            requestId: requestId
-                        });
-                    }
-                }
-
-                // Set overall timeout
-                setTimeout(() => {
-                    if (!isDone) {
-                        finishError(new Error('Waktu habis mencoba semua metode.'));
-                    }
-                }, REQUEST_TIMEOUT_MS + 5000);
             });
         }
 
         // ============================================================
-        // SUBMIT FORM
+        // FORM SUBMIT
         // ============================================================
         let isSubmitting = false;
 
         form.addEventListener('submit', async event => {
             event.preventDefault();
-
             if (isSubmitting) return;
-
             hideMessage();
 
             const target = untukSiapa.value.trim();
             const sender = dariSiapa.value.trim() || 'Anonymous';
             const kritikText = kritik.value.trim();
             const saranText = saran.value.trim();
-            const ratingElement =
-                document.querySelector('input[name="rating"]:checked');
+            const ratingElement = document.querySelector('input[name="rating"]:checked');
             const rating = ratingElement ? ratingElement.value : '';
 
-            // Validasi
             if (!target) {
                 showMessage('Silakan pilih target terlebih dahulu.', 'error');
                 untukSiapa.focus();
                 return;
             }
-
             if (!kritikText || !saranText) {
                 showMessage('Kritik dan saran wajib diisi.', 'error');
                 return;
             }
-
             if (kritikText.length > 500 || saranText.length > 500) {
                 showMessage('Kritik dan saran maksimal 500 karakter.', 'error');
                 return;
             }
-
             if (rating && !['1', '2', '3', '4', '5'].includes(rating)) {
                 showMessage('Rating tidak valid.', 'error');
                 return;
             }
-
-            // Cek duplikat client-side
             if (checkDuplicate(target)) {
                 showMessage(`Anda sudah memberikan feedback untuk ${target} di sesi ini.`, 'error');
                 return;
@@ -1392,12 +1274,7 @@
                     rating: rating
                 });
 
-                showMessage(
-                    result.message ||
-                    'Feedback berhasil disimpan ke Google Sheets! 🙏',
-                    'success'
-                );
-
+                showMessage(result.message || 'Feedback berhasil disimpan ke Google Sheets! 🙏', 'success');
                 markSubmitted(target);
 
                 if (rating) {
@@ -1408,22 +1285,14 @@
 
                 launchConfetti();
                 form.reset();
-
-                ratingContainer
-                    .querySelectorAll('.rating-option')
-                    .forEach(item => item.classList.remove('active'));
-
+                ratingContainer.querySelectorAll('.rating-option').forEach(item => item.classList.remove('active'));
                 updateCounter(kritik, kritikCounter);
                 updateCounter(saran, saranCounter);
                 updateStats();
 
             } catch (error) {
                 console.error('Feedback error:', error);
-                showMessage(
-                    error.message ||
-                    'Feedback gagal dikirim. Silakan coba lagi.',
-                    'error'
-                );
+                showMessage(error.message || 'Feedback gagal dikirim. Silakan coba lagi.', 'error');
             } finally {
                 isSubmitting = false;
                 submitBtn.disabled = false;
@@ -1441,10 +1310,9 @@
         console.log('🎯 KKN 360° Feedback loaded');
         console.log('📡 API URL:', API_URL);
         console.log('🔒 Client Token:', CLIENT_TOKEN);
-        console.log('📊 Browser:', navigator.userAgent);
 
         // ============================================================
-        // SHORTCUT: Ctrl+Enter untuk submit
+        // SHORTCUT: Ctrl+Enter
         // ============================================================
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
